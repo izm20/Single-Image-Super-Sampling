@@ -1,0 +1,7 @@
+data/
+images/
+venv/
+test/
+__pycache__/
+.idea/
+out/
