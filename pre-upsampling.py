@@ -14,7 +14,6 @@ import tqdm
 import tqdm.auto
 tqdm.tqdm = tqdm.auto.tqdm
 
-tf.logging.set_verbosity(tf.logging.ERROR)
 
 print('TensorFlow version: ' + tf.__version__)
 print('Keras version: ' + keras.__version__ + '\n')
@@ -25,7 +24,7 @@ LOW_IMG_SHAPE =  [240, 426, 3]
 HIGH_IMG_SHAPE = [480, 854, 3]
 
 BASE_DIR = os.getcwd()
-IMAGE_DIR = os.path.join(BASE_DIR, 'image')
+IMAGE_DIR = os.path.join(BASE_DIR, 'images')
 TRAIN_DIR = os.path.join(IMAGE_DIR, 'train')
 VAL_DIR = os.path.join(IMAGE_DIR, 'val')
 TEST_DIR = os.path.join(IMAGE_DIR, 'test')
