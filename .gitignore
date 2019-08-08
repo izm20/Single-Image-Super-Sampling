@@ -1,4 +1,7 @@
 venv/
 .vscode/
-.idea/*
+.idea/
 images/
+data/
+dataset/
+__pycache__/
