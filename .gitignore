@@ -5,3 +5,4 @@ images/
 data/
 dataset/
 __pycache__/
+out/
