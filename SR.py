@@ -163,7 +163,7 @@ def images_loader(input_path):
         image = data.imread(file)
         # image = set_image_alignment(image, scale)
         # image_batch = get_split_images(image)
-        image = resize_image(image, 1 / (scale * 2))
+        image = resize_image(image, 1 / scale)
         image = set_image_alignment(image, scale)
         input_image = resize_image(image, 1 / scale)
         interpolated_image = resize_image(input_image, scale)

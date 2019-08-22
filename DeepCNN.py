@@ -36,20 +36,15 @@ class Generator_Model(object):
                           shared_axes=[1, 2])(model)
             gen_model.append(model)
 
-        model_con = concatenate(gen_model)
+        model = concatenate(gen_model)
 
         model_a1 = Conv2D(filters=filters_A1, kernel_size=1, strides=1, padding="same", data_format="channels_last",
-                          use_bias=True)(model_con)
-        model_a1 = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
-                         shared_axes=[1, 2])(model_a1)
-
-        model_a1 = Conv2D(filters=filters_A1, kernel_size=3, strides=1, padding="same", data_format="channels_last",
-                          use_bias=True)(model_a1)
+                          use_bias=True)(model)
         model_a1 = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
                          shared_axes=[1, 2])(model_a1)
 
         model_b1 = Conv2D(filters=filters_B, kernel_size=1, strides=1, padding="same", data_format="channels_last",
-                          use_bias=True)(model_con)
+                          use_bias=True)(model)
         model_b1 = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
                          shared_axes=[1, 2])(model_b1)
 
@@ -58,13 +53,16 @@ class Generator_Model(object):
         model_b2 = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
                          shared_axes=[1, 2])(model_b2)
 
-        final_con = concatenate([model_a1, model_b2])
+        model = concatenate([model_a1, model_b2])
 
-        model = Conv2D(filters=3, kernel_size=1, strides=1, padding="same", data_format="channels_last",
-                       use_bias=True)(final_con)
-        model = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
-                      shared_axes=[1, 2])(model)
-        model = UpSampling2D(size=2)(model)
+        model = Convolution2DTranspose(3, 3, strides=(2, 2), padding='same', data_format="channels_last",
+                                       dilation_rate=(1, 1), activation='relu', use_bias=True,
+                                       kernel_initializer='glorot_uniform', bias_initializer='zeros')(model)
+        # model = Conv2D(filters=3, kernel_size=1, strides=1, padding="same", data_format="channels_last",
+        #                use_bias=True)(final_con)
+        # model = PReLU(alpha_initializer='zeros', alpha_regularizer=None, alpha_constraint=None,
+        #               shared_axes=[1, 2])(model)
+        # model = UpSampling2D(size=2)(model)
         model = add([model, bicubic_input])
         generator_model = Model(inputs=[gen_input, bicubic_input], outputs=model)
 
