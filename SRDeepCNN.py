@@ -9,7 +9,7 @@ class SRDeepCNN(object):
     def __init__(self, channels=3, scale=2, filters_first_extraction=196, filters_extraction=48, extraction_layers=11,
                  filters_a1=64, filters_b=32):
         self.channels = channels
-        self.scale = scale
+        self.upsampling_n = int(scale // 2)
         self.filters_first_extraction = filters_first_extraction
         self.filters_extraction = filters_extraction
         self.extraction_layers = extraction_layers
@@ -48,7 +48,7 @@ class SRDeepCNN(object):
         return model_b2
 
     def upsampling(self, model):
-        model = Convolution2DTranspose(filters=3, kernel_size=3, strides=(self.scale, self.scale), padding='same',
+        model = Convolution2DTranspose(filters=3, kernel_size=3, strides=(2, 2), padding='same',
                                        data_format="channels_last", dilation_rate=(1, 1), activation='relu',
                                        use_bias=True, kernel_initializer='glorot_uniform', bias_initializer='zeros')(
             model)
@@ -72,6 +72,7 @@ class SRDeepCNN(object):
         model_a1 = self.reconstruction_a(model)
         model_b2 = self.reconstruction_b(model)
         model = concatenate([model_a1, model_b2])
-        model = self.upsampling(model)
+        for _ in range(self.upsampling_n):
+            model = self.upsampling(model)
         model = Model(inputs=[gen_input], outputs=model)
         return model

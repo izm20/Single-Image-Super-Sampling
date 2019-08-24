@@ -1,8 +1,10 @@
-data/
-images/
 venv/
-test/
-__pycache__/
+.vscode/
 .idea/
+images/
+data/
+dataset/
+__pycache__/
 out/
 utils/
+ReTrain.py
