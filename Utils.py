@@ -14,6 +14,7 @@ from keras.utils import plot_model
 from matplotlib import pyplot as plt
 from skimage import data, io
 from skimage.util import crop
+from tqdm import tqdm
 
 
 def check_path(path):
@@ -112,11 +113,36 @@ def images_loader(input_path, scale):
     count = 0
     file_names = \
         [input_path + f for f in listdir(input_path) if (isfile(join(input_path, f)) and not f.startswith('.'))]
-    for file in file_names:
+    print('Loading images')
+    for file in tqdm(file_names):
+        image = data.imread(file)
+        image = set_image_alignment(image, scale)
+        image = resize_image(image, 1 / scale)
+        image = set_image_alignment(image, scale)
+        input_image = resize_image(image, 1 / scale)
+        hr_images_test.append(image)
+        lr_images_test.append(input_image)
+        hr_images_train.append(image)
+        lr_images_train.append(input_image)
+        count += 1
+    print(str(count) + ' images loaded')
+    return hr_images_test, lr_images_test, hr_images_train, lr_images_train
+
+
+def images_loader_mini(input_path, scale):
+    hr_images_train = []
+    lr_images_train = []
+    hr_images_test = []
+    lr_images_test = []
+    count = 0
+    file_names = \
+        [input_path + f for f in listdir(input_path) if (isfile(join(input_path, f)) and not f.startswith('.'))]
+    print('Loading images')
+    for file in tqdm(file_names):
         image = data.imread(file)
         image = set_image_alignment(image, scale)
         image_batch = get_split_images(image)
-        image = resize_image(image, 1 / (scale * 2))
+        image = resize_image(image, 1 / scale)
         image = set_image_alignment(image, scale)
         input_image = resize_image(image, 1 / scale)
         hr_images_test.append(image)
