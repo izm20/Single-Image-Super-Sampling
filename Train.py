@@ -1,4 +1,5 @@
 import argparse
+import datetime
 
 import keras
 import numpy as np
@@ -22,20 +23,23 @@ class Train(object):
         self.channels = int(channels)
 
     def train(self):
+        logdir = self.model_dir + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
         hr_images_test, lr_images_test, hr_images_train, lr_images_train = images_loader_mini(self.input_dir, self.scale)
-        x_train_hr = np.array(hr_images_train)
-        x_train_lr = np.array(lr_images_train)
-        x_test_hr = np.array(hr_images_test)
-        x_test_lr = np.array(lr_images_test)
-        x_train_hr = normalize(x_train_hr)
-        x_test_hr = normalize(x_test_hr)
+        y_train_hr = np.array(hr_images_train[:500000])
+        x_train_lr = np.array(lr_images_train[:500000])
+        y_test_hr = np.array(hr_images_test[:15000])
+        x_test_lr = np.array(lr_images_test[:15000])
+        y_train_hr = normalize(y_train_hr)
+        y_test_hr = normalize(y_test_hr)
         x_train_lr = normalize(x_train_lr)
         x_test_lr = normalize(x_test_lr)
         model = SRDeepCNN(self.channels, self.scale).build_model()
-        model.compile(loss=content_loss, optimizer=get_optimizer(), metrics=[metrics.mae, metrics.categorical_accuracy])
-        loss_history = model.fit([x_train_lr], x_train_hr, self.batch_size, self.epochs, 1)
+        model.compile(loss=content_loss, optimizer=get_optimizer(), metrics=[metrics.mse, metrics.categorical_accuracy])
+        tensorboard_callback = keras.callbacks.TensorBoard(log_dir=logdir, batch_size=self.batch_size, write_graph=True, write_images=True, write_grads=True)
+        loss_history = model.fit(x_train_lr, y_train_hr, batch_size=self.batch_size, epochs=self.epochs, verbose=1,
+                                 validation_data=([x_test_lr, y_test_hr]), callbacks=[tensorboard_callback])
         save_model(model, loss_history, self.model_dir)
-        plot_generated_test(self.output_dir, model, x_test_hr, x_test_lr)
+        plot_generated_test(self.output_dir, model, y_test_hr, x_test_lr)
 
 
 if __name__ == "__main__":
@@ -59,7 +63,7 @@ if __name__ == "__main__":
     parser.add_argument('-b', '--batch_size', action='store', dest='batch_size', default='64',
                         help='Batch size for train')
 
-    parser.add_argument('-s', '--scale', action='store', dest='scale', default='4',
+    parser.add_argument('-s', '--scale', action='store', dest='scale', default='2',
                         help='Upsampling scale (2 == x2, 4 == x4, ...)')
 
     args = parser.parse_args()

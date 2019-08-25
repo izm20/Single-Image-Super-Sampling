@@ -24,12 +24,13 @@ def check_path(path):
 
 
 def denormalize(input_data):
-    input_data = input_data * 255
+    input_data = (input_data * 255)
     return input_data.astype(np.uint8)
 
 
 def normalize(input_data):
-    return input_data.astype(np.float32) / 255
+    input_data = (input_data / 255)
+    return input_data.astype(np.float32)
 
 
 def psnr(target, ref):
@@ -117,7 +118,7 @@ def images_loader(input_path, scale):
     for file in tqdm(file_names):
         image = data.imread(file)
         image = set_image_alignment(image, scale)
-        image = resize_image(image, 1 / scale)
+        image = resize_image(image, 1 / (scale * 2))
         image = set_image_alignment(image, scale)
         input_image = resize_image(image, 1 / scale)
         hr_images_test.append(image)
